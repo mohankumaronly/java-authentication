@@ -27,19 +27,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();  // FIXED: Use getRequestURI() instead of getServletPath()
+        return path.startsWith("/api/auth") || path.equals("/test");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getServletPath();
-
-        // Skip authentication for public endpoints
-        if (path.startsWith("/api/auth/") || path.equals("/test")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        // REMOVED: Manual path check - now handled by shouldNotFilter()
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
@@ -84,11 +84,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        return path.startsWith("/api/auth/") || path.equals("/test");
     }
 }
