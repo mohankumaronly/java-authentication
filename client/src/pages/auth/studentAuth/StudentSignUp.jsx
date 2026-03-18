@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import { GraduationCap, Mail, User } from "lucide-react";
+import { useState } from "react";
 import AuthLayout from "../components/layout/AuthLayout";
 import AuthHeader from "../components/auth/AuthHeader";
 import SocialAuthButtons from "../components/auth/SocialAuthButtons";
@@ -9,31 +10,88 @@ import PasswordStrengthIndicator from "../components/auth/PasswordStrengthIndica
 import AuthFooter from "../components/auth/AuthFooter";
 import RoleSwitch from "../components/auth/RoleSwitch";
 import GradientButton from "../components/ui/GradientButton";
-import { useAuthForm } from "../hooks/useAuthForm";
 import { useDarkMode } from "../hooks/useDarkMode";
 import { fadeInUp } from "../constants/animations";
+import AuthService from "../../../services/auth/authApi";
 
 const StudentSignUp = () => {
   useDarkMode();
-  
-  const { formData, isLoading, handleChange, handleSubmit } = useAuthForm(
-    {
-      fullName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      agreeTerms: false
-    },
-    async (data) => {
-      if (data.password !== data.confirmPassword) {
-        throw new Error("Passwords don't match");
-      }
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("Student sign up:", data);
-      // navigate("/student-signin");
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agreeTerms: false
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
+    // Clear errors when user starts typing
+    if (error) setError("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccessMessage("");
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords don't match");
+      return;
     }
-  );
+
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+
+    if (!formData.agreeTerms) {
+      setError("You must agree to the Terms of Service");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await AuthService.studentRegister({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password
+      });
+
+      setSuccessMessage(response.message || "Registration successful! Please check your email for verification link.");
+      
+      // Clear form
+      setFormData({
+        fullName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        agreeTerms: false
+      });
+
+      // Optional: Redirect after 3 seconds
+      setTimeout(() => {
+        navigate("/student-signin", { 
+          state: { message: "Please verify your email before logging in" } 
+        });
+      }, 3000);
+
+    } catch (err) {
+      setError(err.message || "Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <AuthLayout>
@@ -64,6 +122,20 @@ const StudentSignUp = () => {
             </div>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <p className="text-sm text-green-600 dark:text-green-400">{successMessage}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name */}
             <div>
@@ -81,6 +153,7 @@ const StudentSignUp = () => {
                     transition-all"
                   placeholder="John Doe"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -101,6 +174,7 @@ const StudentSignUp = () => {
                     transition-all"
                   placeholder="you@example.com"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -114,6 +188,7 @@ const StudentSignUp = () => {
                 label="Password"
                 required
                 minLength={8}
+                disabled={isLoading}
               />
               <PasswordStrengthIndicator password={formData.password} />
             </div>
@@ -125,6 +200,7 @@ const StudentSignUp = () => {
               onChange={handleChange}
               label="Confirm Password"
               required
+              disabled={isLoading}
             />
             {formData.confirmPassword && formData.password !== formData.confirmPassword && (
               <p className="text-xs text-red-500 mt-1">Passwords don't match</p>
@@ -139,6 +215,7 @@ const StudentSignUp = () => {
                 onChange={handleChange}
                 className="w-4 h-4 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 required
+                disabled={isLoading}
               />
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 I agree to the{" "}
@@ -155,7 +232,7 @@ const StudentSignUp = () => {
             <GradientButton
               gradient="from-blue-500 to-purple-600"
               isLoading={isLoading}
-              disabled={!formData.agreeTerms}
+              disabled={!formData.agreeTerms || isLoading}
             >
               Create Student Account
             </GradientButton>

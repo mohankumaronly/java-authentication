@@ -6,11 +6,8 @@ import StudentSignIn from '../pages/auth/StudentAuth/StudentSignIn';
 import StudentSignUp from '../pages/auth/StudentAuth/StudentSignUp';
 import ProfessorSignUp from '../pages/auth/professorSignInAuth/ProfessorSignUp';
 import ProfessorSignIn from '../pages/auth/professorSignInAuth/ProfessorSignIn';
-// Import other pages as you create them
-// import AboutPage from '../pages/AboutPage';
-// import PricingPage from '../pages/PricingPage';
-// import SignInPage from '../pages/SignInPage';
-// import SignUpPage from '../pages/SignUpPage';
+import StudentDashboard from '../pages/studentDashboard/StudentDashboard';
+import ProfessorDashboard from '../pages/professorDashboard/ProfessorDashboard';
 
 const AppRoutes = () => {
   return (
@@ -26,18 +23,8 @@ const AppRoutes = () => {
       {/* Professor Routes */}
       <Route path="/professor-signin" element={<ProfessorSignIn />} />
       <Route path="/professor-signup" element={<ProfessorSignUp />} />
-      
-      {/* Additional routes you can add later */}
-      {/* <Route path="/about" element={<AboutPage />} /> */}
-      {/* <Route path="/pricing" element={<PricingPage />} /> */}
-      {/* <Route path="/signin" element={<SignInPage />} /> */}
-      {/* <Route path="/signup" element={<SignUpPage />} /> */}
-      {/* <Route path="/features" element={<FeaturesPage />} /> */}
-      {/* <Route path="/for-teachers" element={<ForTeachersPage />} /> */}
-      {/* <Route path="/for-students" element={<ForStudentsPage />} /> */}
-      
-      {/* 404 route - catch all unmatched routes */}
-      {/* <Route path="*" element={<NotFoundPage />} /> */}
+      <Route path="/student-dashboard" element={<StudentDashboard />} />
+      <Route path="/professor-dashboard" element={<ProfessorDashboard />} />
     </Routes>
   );
 };
