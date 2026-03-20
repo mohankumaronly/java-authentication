@@ -30,7 +30,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ CORS enabled with bean
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -39,6 +39,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/ai/**",           // ← ADD THIS LINE for AI endpoints
                                 "/test",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -66,32 +67,32 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // ✅ Your frontend URLs
+        // Your frontend URLs
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",        // Local React dev server
                 "http://localhost:3000",         // Alternative React port
                 "https://your-frontend.onrender.com" // Your production frontend URL
         ));
 
-        // ✅ Allow all necessary HTTP methods
+        // Allow all necessary HTTP methods
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
 
-        // ✅ Allow all headers
+        // Allow all headers
         config.setAllowedHeaders(List.of("*"));
 
-        // 🔥 CRITICAL: Allow credentials (cookies)
+        // CRITICAL: Allow credentials (cookies)
         config.setAllowCredentials(true);
 
-        // 🔥 IMPORTANT: Expose headers that frontend might need
+        // IMPORTANT: Expose headers that frontend might need
         config.setExposedHeaders(List.of(
                 "Authorization",
                 "Content-Disposition",
-                "Set-Cookie"  // ← ADD THIS to expose Set-Cookie headers
+                "Set-Cookie"
         ));
 
-        // ✅ Cache preflight requests for 1 hour
+        // Cache preflight requests for 1 hour
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
