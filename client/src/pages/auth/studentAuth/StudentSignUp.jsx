@@ -42,7 +42,6 @@ const StudentSignUp = () => {
     setError("");
     setSuccessMessage("");
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -69,7 +68,6 @@ const StudentSignUp = () => {
 
       setSuccessMessage(response.message || "Registration successful! Please check your email for verification link.");
       
-      // Clear form
       setFormData({
         fullName: "",
         email: "",
@@ -78,7 +76,6 @@ const StudentSignUp = () => {
         agreeTerms: false
       });
 
-      // Optional: Redirect after 3 seconds
       setTimeout(() => {
         navigate("/student-signin", { 
           state: { message: "Please verify your email before logging in" } 
@@ -121,14 +118,12 @@ const StudentSignUp = () => {
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
 
-          {/* Success Message */}
           {successMessage && (
             <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
               <p className="text-sm text-green-600 dark:text-green-400">{successMessage}</p>
@@ -136,7 +131,6 @@ const StudentSignUp = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Full Name */}
             <div>
               <label className="block text-sm font-medium mb-2">Full Name</label>
               <div className="relative">
@@ -157,7 +151,6 @@ const StudentSignUp = () => {
               </div>
             </div>
 
-            {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-2">Email Address</label>
               <div className="relative">
@@ -177,8 +170,7 @@ const StudentSignUp = () => {
                 />
               </div>
             </div>
-
-            {/* Password */}
+            
             <div>
               <PasswordField
                 name="password"
@@ -192,7 +184,6 @@ const StudentSignUp = () => {
               <PasswordStrengthIndicator password={formData.password} />
             </div>
 
-            {/* Confirm Password */}
             <PasswordField
               name="confirmPassword"
               value={formData.confirmPassword}
@@ -205,7 +196,6 @@ const StudentSignUp = () => {
               <p className="text-xs text-red-500 mt-1">Passwords don't match</p>
             )}
 
-            {/* Terms and Conditions */}
             <label className="flex items-start gap-2">
               <input
                 type="checkbox"

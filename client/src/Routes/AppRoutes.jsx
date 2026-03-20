@@ -2,27 +2,18 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoute";
-
-// Landing & Role Selection
 import LandingPage from "../pages/landing/LandingPage";
 import RoleSelection from "../pages/RoleSelectionPage/RoleSelection";
-
-// Auth Pages
-import SignIn from "../pages/auth/SignIn"; // New unified sign-in
+import SignIn from "../pages/auth/SignIn"; 
 import StudentSignUp from "../pages/auth/studentAuth/StudentSignUp";
 import ProfessorSignUp from "../pages/auth/professorSignInAuth/ProfessorSignUp";
-
-// Dashboards
 import StudentDashboard from "../pages/studentDashboard/StudentDashboard";
 import ProfessorDashboard from "../pages/professorDashboard/ProfessorDashboard";
-
-// Other
 import Unauthorized from "../pages/Unauthorized";
 
 const AppRoutes = () => {
   const { isAuthenticated, user, loading } = useAuth();
 
-  // Show loading while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,7 +25,6 @@ const AppRoutes = () => {
     );
   }
 
-  // Redirect authenticated users away from auth pages
   const AuthRedirect = ({ children }) => {
     if (isAuthenticated) {
       if (user?.role === "STUDENT") {
@@ -49,12 +39,10 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/get-started" element={<RoleSelection />} />
       <Route path="/role-selection" element={<RoleSelection />} />
       
-      {/* Unified Sign In - handles both student and professor */}
       <Route 
         path="/signin" 
         element={
@@ -64,11 +52,9 @@ const AppRoutes = () => {
         } 
       />
       
-      {/* Keep individual sign-in pages for backward compatibility (redirect to unified) */}
       <Route path="/student-signin" element={<Navigate to="/signin" replace />} />
       <Route path="/professor-signin" element={<Navigate to="/signin" replace />} />
       
-      {/* Sign Up - keep separate for role-specific registration */}
       <Route 
         path="/student-signup" 
         element={
@@ -88,7 +74,6 @@ const AppRoutes = () => {
       
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* Protected Routes */}
       <Route
         path="/profile"
         element={
@@ -98,7 +83,6 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Student Only Routes */}
       <Route
         path="/student-dashboard"
         element={
@@ -108,7 +92,6 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Professor Only Routes */}
       <Route
         path="/professor-dashboard"
         element={
@@ -118,7 +101,6 @@ const AppRoutes = () => {
         }
       />
 
-      {/* 404 Route */}
       <Route path="*" element={<div>404 - Page Not Found</div>} />
     </Routes>
   );
