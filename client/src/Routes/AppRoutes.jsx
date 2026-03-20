@@ -25,6 +25,20 @@ const AppRoutes = () => {
     );
   }
 
+  // Redirect authenticated users away from public pages
+  const PublicRoute = ({ children }) => {
+    if (isAuthenticated) {
+      if (user?.role === "STUDENT") {
+        return <Navigate to="/student-dashboard" replace />;
+      }
+      if (user?.role === "PROFESSOR") {
+        return <Navigate to="/professor-dashboard" replace />;
+      }
+    }
+    return children;
+  };
+
+  // Redirect authenticated users away from auth pages
   const AuthRedirect = ({ children }) => {
     if (isAuthenticated) {
       if (user?.role === "STUDENT") {
@@ -39,10 +53,33 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/get-started" element={<RoleSelection />} />
-      <Route path="/role-selection" element={<RoleSelection />} />
+      {/* Public Routes - Not accessible after login */}
+      <Route 
+        path="/" 
+        element={
+          <PublicRoute>
+            <LandingPage />
+          </PublicRoute>
+        } 
+      />
+      <Route 
+        path="/get-started" 
+        element={
+          <PublicRoute>
+            <RoleSelection />
+          </PublicRoute>
+        } 
+      />
+      <Route 
+        path="/role-selection" 
+        element={
+          <PublicRoute>
+            <RoleSelection />
+          </PublicRoute>
+        } 
+      />
       
+      {/* Auth Routes */}
       <Route 
         path="/signin" 
         element={
@@ -74,6 +111,7 @@ const AppRoutes = () => {
       
       <Route path="/unauthorized" element={<Unauthorized />} />
 
+      {/* Protected Routes */}
       <Route
         path="/profile"
         element={
@@ -101,6 +139,7 @@ const AppRoutes = () => {
         }
       />
 
+      {/* 404 Route */}
       <Route path="*" element={<div>404 - Page Not Found</div>} />
     </Routes>
   );
