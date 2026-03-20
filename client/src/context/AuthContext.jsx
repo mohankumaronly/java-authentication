@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import * as AuthApi from "../services/auth/authApi";
-import api from "../services/api"; // ← ADD THIS IMPORT
+import api from "../services/api"
 
 const AuthContext = createContext(null);
 
@@ -9,13 +9,11 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Initialize auth state
   useEffect(() => {
     const initAuth = async () => {
       try {
         setLoading(true);
         
-        // Check for refresh token (user was logged in)
         const refreshToken = localStorage.getItem("refreshToken");
         console.log("🔄 initAuth - refreshToken:", refreshToken ? "✅ Present" : "❌ Missing");
         
@@ -32,7 +30,6 @@ export const AuthProvider = ({ children }) => {
           setUser(JSON.parse(storedUser));
         }
 
-        // Fetch fresh profile (access token sent via cookie)
         try {
           console.log("📡 Fetching profile...");
           const userData = await AuthApi.getProfile();
@@ -42,7 +39,6 @@ export const AuthProvider = ({ children }) => {
         } catch (profileError) {
           console.error("❌ Profile fetch failed:", profileError);
           
-          // If 403, use stored user as fallback
           if (profileError.status === 403) {
             console.log("Using stored user as fallback for 403");
             const storedUser = localStorage.getItem("user");
@@ -50,7 +46,6 @@ export const AuthProvider = ({ children }) => {
               setUser(JSON.parse(storedUser));
             }
           } else {
-            // Clear everything for other errors
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("user");
             setUser(null);
@@ -66,7 +61,6 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  // Login
   const login = useCallback(async (credentials) => {
     try {
       setError(null);
@@ -74,7 +68,6 @@ export const AuthProvider = ({ children }) => {
       const res = await AuthApi.login(credentials);
       console.log("Login response:", res);
 
-      // Store the refresh token only (access token is in HTTP-only cookie)
       if (res.refreshToken) {
         localStorage.setItem("refreshToken", res.refreshToken);
         console.log("✅ Refresh token stored in localStorage");
@@ -82,7 +75,6 @@ export const AuthProvider = ({ children }) => {
         console.warn("⚠️ No refreshToken in response!");
       }
 
-      // Store user data
       const userData = {
         email: res.email,
         fullName: res.fullName,
@@ -103,7 +95,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Logout
   const logout = useCallback(async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
@@ -120,7 +111,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Avatar upload
   const uploadAvatar = useCallback(async (file) => {
     try {
       const formData = new FormData();
@@ -130,14 +120,12 @@ export const AuthProvider = ({ children }) => {
         headers: { "Content-Type": "multipart/form-data" }
       });
       
-      // Update user with new profile image
       if (response.data.profileImage) {
         setUser(prev => ({
           ...prev,
           profileImage: response.data.profileImage
         }));
         
-        // Update localStorage
         if (user) {
           const updatedUser = {
             ...user,
@@ -154,18 +142,15 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Delete avatar
   const deleteAvatar = useCallback(async () => {
     try {
       const response = await api.delete("/users/avatar");
       
-      // Update user
       setUser(prev => ({
         ...prev,
         profileImage: null
       }));
       
-      // Update localStorage
       if (user) {
         const updatedUser = {
           ...user,
