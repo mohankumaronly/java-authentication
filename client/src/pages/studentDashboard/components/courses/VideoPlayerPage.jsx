@@ -3,9 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play, Pause, Volume2, VolumeX, Maximize, Minimize,
-  ChevronLeft, ThumbsUp, Share2, Bookmark, Clock,
-  User, ChevronRight, Heart, MessageCircle, Repeat, Check,
-  X, MoreHorizontal
+  ChevronLeft, User, ChevronRight, Check, X, ShoppingCart, BookOpen,
+  Star, MessageSquare, Send, ThumbsUp, ThumbsDown, AlertCircle
 } from 'lucide-react';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
@@ -23,13 +22,18 @@ const VideoPlayerPage = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
   const videoRef = useRef(null);
-  const iframeRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
+  
+  // Rating and Feedback States
+  const [rating, setRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [isRatingSubmitted, setIsRatingSubmitted] = useState(false);
+  const [feedbackType, setFeedbackType] = useState(null); // 'helpful', 'not-helpful', or null
+  const [showThankYou, setShowThankYou] = useState(false);
+  const [thankYouMessage, setThankYouMessage] = useState('');
 
   // Listen for fullscreen change events
   useEffect(() => {
@@ -51,100 +55,73 @@ const VideoPlayerPage = () => {
         instructor: {
           name: "Shradha Khapra",
           avatar: "https://ui-avatars.com/api/?name=Shradha+Khapra&background=3b82f6&color=fff",
-          subscribers: "7.47M",
-          subscriberCount: 7470000
         },
-        // YouTube embed URL for the DSA lecture
-        videoUrl: "https://www.youtube.com/embed/VTLCoHnyACE",
-        isYouTube: true,
+        videoUrl: "https://res.cloudinary.com/demo/video/upload/sample.mp4",
+        isCloudinary: true,
         duration: "1:15:30",
-        views: "5.68M",
-        likes: 86000,
         publishedAt: "2024-09-02",
-        comments: 12000,
-        tags: ["c++", "dsa", "flowchart", "pseudocode", "programming", "apnacollege"]
+        tags: ["c++", "dsa", "flowchart", "pseudocode", "programming", "apnacollege"],
+        rating: 4.8,
+        totalRatings: 1245
       };
       setVideo(mockVideo);
     };
 
-    // Mock recommended courses (other lectures from the playlist)
     const recommended = [
       {
         id: 102,
         title: "Lecture 2 : Variable, Data Types & Operators",
         instructor: "Shradha Khapra",
-        thumbnail: "https://img.youtube.com/vi/VIDEO_ID_2/mqdefault.jpg",
-        videoUrl: "https://www.youtube.com/embed/NEXT_VIDEO_ID",
-        isYouTube: true,
+        instructorAvatar: "https://ui-avatars.com/api/?name=Shradha+Khapra&background=3b82f6&color=fff",
+        thumbnail: "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+        videoUrl: "https://res.cloudinary.com/demo/video/upload/sample.mp4",
+        isCloudinary: true,
         duration: "1:20:15",
-        views: "4.2M",
         publishedAt: "1 week ago",
         isFree: true,
+        price: 0,
         rating: 4.9
       },
       {
         id: 103,
         title: "Lecture 3: Conditional Statements & Loops",
         instructor: "Shradha Khapra",
-        thumbnail: "https://img.youtube.com/vi/VIDEO_ID_3/mqdefault.jpg",
-        videoUrl: "https://www.youtube.com/embed/VIDEO_ID_3",
-        isYouTube: true,
+        instructorAvatar: "https://ui-avatars.com/api/?name=Shradha+Khapra&background=3b82f6&color=fff",
+        thumbnail: "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+        videoUrl: "https://res.cloudinary.com/demo/video/upload/sample.mp4",
+        isCloudinary: true,
         duration: "1:25:30",
-        views: "3.8M",
         publishedAt: "2 weeks ago",
-        isFree: true,
+        isFree: false,
+        price: 49.99,
         rating: 4.8
       },
       {
         id: 104,
         title: "Lecture 4: Patterns in C++",
         instructor: "Shradha Khapra",
-        thumbnail: "https://img.youtube.com/vi/VIDEO_ID_4/mqdefault.jpg",
-        videoUrl: "https://www.youtube.com/embed/VIDEO_ID_4",
-        isYouTube: true,
+        instructorAvatar: "https://ui-avatars.com/api/?name=Shradha+Khapra&background=3b82f6&color=fff",
+        thumbnail: "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+        videoUrl: "https://res.cloudinary.com/demo/video/upload/sample.mp4",
+        isCloudinary: true,
         duration: "1:30:15",
-        views: "3.2M",
         publishedAt: "3 weeks ago",
-        isFree: true,
+        isFree: false,
+        price: 49.99,
         rating: 4.9
       },
       {
         id: 105,
         title: "Lecture 5: Functions in C++",
         instructor: "Shradha Khapra",
-        thumbnail: "https://img.youtube.com/vi/VIDEO_ID_5/mqdefault.jpg",
-        videoUrl: "https://www.youtube.com/embed/VIDEO_ID_5",
-        isYouTube: true,
+        instructorAvatar: "https://ui-avatars.com/api/?name=Shradha+Khapra&background=3b82f6&color=fff",
+        thumbnail: "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+        videoUrl: "https://res.cloudinary.com/demo/video/upload/sample.mp4",
+        isCloudinary: true,
         duration: "1:15:40",
-        views: "2.9M",
         publishedAt: "1 month ago",
         isFree: true,
-        rating: 4.8
-      },
-      {
-        id: 106,
-        title: "Binary Number System | DSA Series",
-        instructor: "Shradha Khapra",
-        thumbnail: "https://img.youtube.com/vi/VIDEO_ID_6/mqdefault.jpg",
-        videoUrl: "https://www.youtube.com/embed/VIDEO_ID_6",
-        isYouTube: true,
-        duration: "1:10:20",
-        views: "2.5M",
-        publishedAt: "1 month ago",
-        isFree: true,
-        rating: 4.7
-      },
-      {
-        id: 107,
-        title: "Bitwise Operators | DSA Series",
-        instructor: "Shradha Khapra",
-        thumbnail: "https://img.youtube.com/vi/VIDEO_ID_7/mqdefault.jpg",
-        videoUrl: "https://www.youtube.com/embed/VIDEO_ID_7",
-        isYouTube: true,
-        duration: "1:25:15",
-        views: "2.1M",
-        publishedAt: "1 month ago",
-        isFree: true,
+        price: 0,
         rating: 4.8
       }
     ];
@@ -165,7 +142,7 @@ const VideoPlayerPage = () => {
   };
 
   const togglePlay = () => {
-    if (!video?.isYouTube && videoRef.current) {
+    if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
@@ -176,7 +153,7 @@ const VideoPlayerPage = () => {
   };
 
   const toggleMute = () => {
-    if (!video?.isYouTube && videoRef.current) {
+    if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
@@ -191,7 +168,7 @@ const VideoPlayerPage = () => {
   };
 
   const handleProgressClick = (e) => {
-    if (!video?.isYouTube && videoRef.current) {
+    if (videoRef.current) {
       const progressBar = e.currentTarget;
       const clickPosition = (e.clientX - progressBar.getBoundingClientRect().left) / progressBar.clientWidth;
       const newTime = clickPosition * duration;
@@ -202,7 +179,7 @@ const VideoPlayerPage = () => {
   };
 
   const changePlaybackRate = () => {
-    if (!video?.isYouTube && videoRef.current) {
+    if (videoRef.current) {
       const rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
       const currentIndex = rates.indexOf(playbackRate);
       const nextRate = rates[(currentIndex + 1) % rates.length];
@@ -212,7 +189,7 @@ const VideoPlayerPage = () => {
   };
 
   const handleMouseMove = () => {
-    if (!isFullscreen && !video?.isYouTube) {
+    if (!isFullscreen) {
       setShowControls(true);
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
@@ -226,7 +203,7 @@ const VideoPlayerPage = () => {
   };
 
   const handleTimeUpdate = () => {
-    if (!video?.isYouTube && videoRef.current) {
+    if (videoRef.current) {
       const current = videoRef.current.currentTime;
       const dur = videoRef.current.duration;
       setCurrentTime(current);
@@ -236,14 +213,14 @@ const VideoPlayerPage = () => {
 
   useEffect(() => {
     return () => {
-      if (!video?.isYouTube && videoRef.current && videoId) {
+      if (videoRef.current && videoId) {
         localStorage.setItem(`video_progress_${videoId}`, videoRef.current.currentTime);
       }
     };
-  }, [videoId, video]);
+  }, [videoId]);
 
   useEffect(() => {
-    if (!video?.isYouTube && videoRef.current && video) {
+    if (videoRef.current && video) {
       const savedProgress = localStorage.getItem(`video_progress_${videoId}`);
       if (savedProgress) {
         videoRef.current.currentTime = parseFloat(savedProgress);
@@ -251,56 +228,70 @@ const VideoPlayerPage = () => {
     }
   }, [video, videoId]);
 
-  const ShareModal = () => (
-    <AnimatePresence>
-      {showShareModal && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50"
-            onClick={() => setShowShareModal(false)}
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
-          >
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 m-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Share Video</h3>
-                <button
-                  onClick={() => setShowShareModal(false)}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                </button>
-              </div>
-              <div className="space-y-3">
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    setShowShareModal(false);
-                  }}
-                  className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  Copy Link
-                </button>
-                <button className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
-                  Share on Twitter
-                </button>
-                <button className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
-                  Share on Facebook
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
+  // Rating Handlers
+  const handleRating = (value) => {
+    setRating(value);
+  };
+
+  const submitRating = () => {
+    if (rating > 0) {
+      setIsRatingSubmitted(true);
+      setThankYouMessage(`Thank you for rating this lecture ${rating} stars!`);
+      setShowThankYou(true);
+      setTimeout(() => setShowThankYou(false), 3000);
+      // Here you would send the rating to your backend
+      console.log(`Rating submitted: ${rating} stars for video ${videoId}`);
+    }
+  };
+
+  const submitFeedback = () => {
+    if (feedback.trim()) {
+      const message = feedbackType === 'helpful' 
+        ? 'Thank you for your positive feedback!' 
+        : 'Thank you for helping us improve!';
+      setThankYouMessage(message);
+      setShowThankYou(true);
+      setTimeout(() => setShowThankYou(false), 3000);
+      // Here you would send the feedback to your backend
+      console.log(`Feedback submitted for video ${videoId} (${feedbackType}): ${feedback}`);
+      setFeedback('');
+      setShowFeedbackForm(false);
+      setFeedbackType(null);
+    }
+  };
+
+  const handleFeedbackType = (type) => {
+    if (feedbackType === type) {
+      // If clicking the same button, close the form
+      setShowFeedbackForm(false);
+      setFeedbackType(null);
+    } else {
+      setFeedbackType(type);
+      setShowFeedbackForm(true);
+      setFeedback(''); // Clear previous feedback
+      console.log(`User selected: ${type} for video ${videoId}`);
+    }
+  };
+
+  const cancelFeedback = () => {
+    setShowFeedbackForm(false);
+    setFeedbackType(null);
+    setFeedback('');
+  };
+
+  const handleEnrollOrPurchase = (e, course) => {
+    e.stopPropagation();
+    if (course.isFree) {
+      console.log(`Enrolling in free course: ${course.title}`);
+      alert(`You have been enrolled in "${course.title}" for free!`);
+    } else {
+      navigate(`/course/${course.id}`);
+    }
+  };
+
+  const handleCourseClick = (courseId) => {
+    navigate(`/course/${courseId}`);
+  };
 
   if (!video) {
     return (
@@ -315,7 +306,6 @@ const VideoPlayerPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-      {/* Main Container - Video Player and Recommended Courses Side by Side */}
       {!isFullscreen ? (
         <div className="max-w-[1800px] mx-auto px-4 py-6">
           <div className="flex flex-col lg:flex-row gap-6">
@@ -325,100 +315,82 @@ const VideoPlayerPage = () => {
               <div
                 className="relative bg-black rounded-xl overflow-hidden shadow-2xl"
                 onMouseMove={handleMouseMove}
-                onMouseLeave={() => !video?.isYouTube && setShowControls(false)}
+                onMouseLeave={() => setShowControls(false)}
               >
-                {!video.isYouTube ? (
-                  <video
-                    ref={videoRef}
-                    className="w-full aspect-video"
-                    src={video.videoUrl}
-                    onClick={togglePlay}
-                    onTimeUpdate={handleTimeUpdate}
-                    onLoadedMetadata={(e) => setDuration(e.target.duration)}
-                  />
-                ) : (
-                  <iframe
-                    ref={iframeRef}
-                    className="w-full aspect-video"
-                    src={`${video.videoUrl}?autoplay=0&controls=1&modestbranding=1&rel=0&showinfo=0`}
-                    title={video.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                )}
+                <video
+                  ref={videoRef}
+                  className="w-full aspect-video"
+                  src={video.videoUrl}
+                  onClick={togglePlay}
+                  onTimeUpdate={handleTimeUpdate}
+                  onLoadedMetadata={(e) => setDuration(e.target.duration)}
+                />
 
-                {/* Video Controls Overlay - Only for non-YouTube videos */}
-                {!video.isYouTube && (
-                  <AnimatePresence>
-                    {showControls && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/70"
+                <AnimatePresence>
+                  {showControls && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/70"
+                    >
+                      <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start">
+                        <button
+                          onClick={() => navigate(-1)}
+                          className="p-2 rounded-lg bg-black/50 hover:bg-black/70 transition-colors backdrop-blur-sm"
+                        >
+                          <ChevronLeft className="w-6 h-6 text-white" />
+                        </button>
+                        <h3 className="text-white text-sm md:text-base font-medium bg-black/50 px-3 py-1.5 rounded-lg max-w-md truncate backdrop-blur-sm">
+                          {video.title}
+                        </h3>
+                      </div>
+
+                      <button
+                        onClick={togglePlay}
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
                       >
-                        {/* Top Controls */}
-                        <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start">
-                          <button
-                            onClick={() => navigate(-1)}
-                            className="p-2 rounded-lg bg-black/50 hover:bg-black/70 transition-colors backdrop-blur-sm"
+                        {isPlaying ? (
+                          <Pause className="w-12 h-12 text-white" />
+                        ) : (
+                          <Play className="w-12 h-12 text-white" />
+                        )}
+                      </button>
+
+                      <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
+                        <div
+                          className="w-full h-1 bg-gray-600 rounded-full cursor-pointer group"
+                          onClick={handleProgressClick}
+                        >
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full relative"
+                            style={{ width: `${progress}%` }}
                           >
-                            <ChevronLeft className="w-6 h-6 text-white" />
-                          </button>
-                          <h3 className="text-white text-sm md:text-base font-medium bg-black/50 px-3 py-1.5 rounded-lg max-w-md truncate backdrop-blur-sm">
-                            {video.title}
-                          </h3>
+                            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
                         </div>
 
-                        {/* Center Play Button */}
-                        <button
-                          onClick={togglePlay}
-                          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
-                        >
-                          {isPlaying ? (
-                            <Pause className="w-12 h-12 text-white" />
-                          ) : (
-                            <Play className="w-12 h-12 text-white" />
-                          )}
-                        </button>
-
-                        {/* Bottom Controls */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-                          <div
-                            className="w-full h-1 bg-gray-600 rounded-full cursor-pointer group"
-                            onClick={handleProgressClick}
-                          >
-                            <div
-                              className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full relative"
-                              style={{ width: `${progress}%` }}
-                            >
-                              <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <button onClick={togglePlay} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
-                                {isPlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white" />}
-                              </button>
-                              <button onClick={toggleMute} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
-                                {isMuted ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
-                              </button>
-                              <div className="text-white text-sm">{formatTime(currentTime)} / {formatTime(duration)}</div>
-                              <button onClick={changePlaybackRate} className="px-2 py-1 hover:bg-white/20 rounded-lg transition-colors text-white text-sm font-medium">
-                                {playbackRate}x
-                              </button>
-                            </div>
-                            <button onClick={toggleFullscreen} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
-                              <Maximize className="w-5 h-5 text-white" />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <button onClick={togglePlay} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                              {isPlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white" />}
+                            </button>
+                            <button onClick={toggleMute} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                              {isMuted ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
+                            </button>
+                            <div className="text-white text-sm">{formatTime(currentTime)} / {formatTime(duration)}</div>
+                            <button onClick={changePlaybackRate} className="px-2 py-1 hover:bg-white/20 rounded-lg transition-colors text-white text-sm font-medium">
+                              {playbackRate}x
                             </button>
                           </div>
+                          <button onClick={toggleFullscreen} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                            <Maximize className="w-5 h-5 text-white" />
+                          </button>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Video Info Section */}
@@ -427,84 +399,20 @@ const VideoPlayerPage = () => {
                   {video.title}
                 </h1>
 
-                {/* Video Actions Bar */}
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-gray-200 dark:border-gray-700 pb-4">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={video.instructor.avatar}
-                      alt={video.instructor.name}
-                      className="w-10 h-10 rounded-full"
-                    />
-                    <div>
-                      <p className="text-gray-900 dark:text-white font-medium">{video.instructor.name}</p>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">{video.instructor.subscribers} subscribers</p>
-                    </div>
-                    <button className="ml-2 px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full text-sm font-medium transition-colors">
-                      Subscribe
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setIsLiked(!isLiked)}
-                      className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-colors ${isLiked
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                    >
-                      <ThumbsUp className="w-4 h-4" />
-                      <span>{video.likes}</span>
-                    </button>
-
-                    <button
-                      onClick={() => setShowShareModal(true)}
-                      className="flex items-center gap-2 px-4 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-700 dark:text-gray-300"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      <span>Share</span>
-                    </button>
-
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowMoreOptions(!showMoreOptions)}
-                        className="p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
-                      >
-                        <MoreHorizontal className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                      </button>
-
-                      <AnimatePresence>
-                        {showMoreOptions && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-10"
-                          >
-                            <button
-                              onClick={() => {
-                                setIsSaved(!isSaved);
-                                setShowMoreOptions(false);
-                              }}
-                              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
-                              {isSaved ? 'Remove from saved' : 'Save to playlist'}
-                            </button>
-                            <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                              Report
-                            </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                {/* Instructor Info */}
+                <div className="flex items-center gap-3 pb-4">
+                  <img
+                    src={video.instructor.avatar}
+                    alt={video.instructor.name}
+                    className="w-12 h-12 rounded-full"
+                  />
+                  <div>
+                    <p className="text-gray-900 dark:text-white font-medium text-lg">{video.instructor.name}</p>
                   </div>
                 </div>
 
                 {/* Video Description */}
                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
-                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-2">
-                    <span>{video.views} views</span>
-                    <span>{new Date(video.publishedAt).toLocaleDateString()}</span>
-                  </div>
                   <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                     {video.description}
                   </p>
@@ -515,30 +423,157 @@ const VideoPlayerPage = () => {
                   </div>
                 </div>
 
-                {/* Comments Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-gray-900 dark:text-white font-semibold">Comments</h3>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{video.comments}</span>
+                {/* Rating and Feedback Section */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Rate this lecture
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <Star className="w-4 h-4 fill-current text-yellow-500" />
+                      <span>{video.rating} ({video.totalRatings} ratings)</span>
+                    </div>
                   </div>
 
-                  <div className="flex gap-3">
-                    <img
-                      src="https://ui-avatars.com/api/?name=You&background=3b82f6&color=fff"
-                      alt="You"
-                      className="w-10 h-10 rounded-full"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Add a comment..."
-                      className="flex-1 bg-transparent border-b border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white py-2 focus:outline-none focus:border-blue-500 dark:focus:border-blue-500"
-                    />
-                  </div>
+                  {!isRatingSubmitted ? (
+                    <>
+                      {/* Star Rating */}
+                      <div className="flex items-center gap-2 mb-4">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onClick={() => handleRating(star)}
+                            onMouseEnter={() => setHoveredRating(star)}
+                            onMouseLeave={() => setHoveredRating(0)}
+                            className="focus:outline-none transition-transform hover:scale-110"
+                          >
+                            <Star
+                              className={`w-8 h-8 ${
+                                star <= (hoveredRating || rating)
+                                  ? 'fill-current text-yellow-500'
+                                  : 'text-gray-300 dark:text-gray-600'
+                              }`}
+                            />
+                          </button>
+                        ))}
+                        {rating > 0 && (
+                          <button
+                            onClick={submitRating}
+                            className="ml-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                          >
+                            Submit Rating
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Feedback Buttons */}
+                      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          Share your feedback about this lecture:
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleFeedbackType('helpful')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                              feedbackType === 'helpful'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-2 border-green-500 shadow-md'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                            }`}
+                          >
+                            <ThumbsUp className="w-4 h-4" />
+                            <span>Helpful</span>
+                          </button>
+                          <button
+                            onClick={() => handleFeedbackType('not-helpful')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                              feedbackType === 'not-helpful'
+                                ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-2 border-red-500 shadow-md'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                            }`}
+                          >
+                            <ThumbsDown className="w-4 h-4" />
+                            <span>Not Helpful</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-4">
+                      <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 mb-2">
+                        <Check className="w-6 h-6" />
+                        <span className="font-medium">Thank you for your rating!</span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Your feedback helps us improve the course content.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Feedback Form - Shows for both Helpful and Not Helpful */}
+                  <AnimatePresence>
+                    {showFeedbackForm && feedbackType && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, y: -20 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4"
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          {feedbackType === 'helpful' ? (
+                            <ThumbsUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                          ) : (
+                            <ThumbsDown className="w-5 h-5 text-red-600 dark:text-red-400" />
+                          )}
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {feedbackType === 'helpful' 
+                              ? 'What did you find helpful? (Optional)' 
+                              : 'What could be improved? (Optional)'}
+                          </label>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <textarea
+                            value={feedback}
+                            onChange={(e) => setFeedback(e.target.value)}
+                            placeholder={
+                              feedbackType === 'helpful'
+                                ? "Tell us what you liked about this lecture..."
+                                : "Please share your suggestions for improvement..."
+                            }
+                            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            rows="3"
+                            autoFocus
+                          />
+                        </div>
+                        
+                        <div className="flex justify-end gap-2 mt-3">
+                          <button
+                            onClick={cancelFeedback}
+                            className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={submitFeedback}
+                            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
+                          >
+                            <Send className="w-4 h-4" />
+                            Submit Feedback
+                          </button>
+                        </div>
+                        
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          Your feedback helps us create better content for everyone.
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </div>
 
-            {/* Right Sidebar - Recommended Courses (Fixed Width) */}
+            {/* Right Sidebar - Recommended Courses */}
             <div className="lg:w-[400px] flex-shrink-0">
               <div className="sticky top-4 space-y-3">
                 <div className="flex items-center justify-between mb-2">
@@ -548,9 +583,9 @@ const VideoPlayerPage = () => {
 
                 <div className="space-y-3 max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar">
                   {recommendedCourses.map((course) => (
-                    <Link
+                    <div
                       key={course.id}
-                      to={`/course/${course.id}/video/1`}
+                      onClick={() => handleCourseClick(course.id)}
                       className="flex gap-3 group cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-lg transition-all duration-200 p-2"
                     >
                       <div className="relative flex-shrink-0 w-40 h-24">
@@ -573,25 +608,49 @@ const VideoPlayerPage = () => {
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {course.title}
                         </h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{course.instructor}</p>
-                        <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                          <span>{course.views} views</span>
-                          <span>•</span>
-                          <span>{course.publishedAt}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <img
+                            src={course.instructorAvatar}
+                            alt={course.instructor}
+                            className="w-5 h-5 rounded-full"
+                          />
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{course.instructor}</p>
                         </div>
                         <div className="flex items-center gap-1 mt-1">
                           <div className="flex items-center gap-0.5">
                             <span className="text-yellow-500 text-xs">★</span>
                             <span className="text-xs text-gray-600 dark:text-gray-400">{course.rating}</span>
                           </div>
-                          {!course.isFree && (
-                            <span className="text-xs font-semibold text-gray-900 dark:text-white">
-                              ${course.price}
-                            </span>
-                          )}
                         </div>
+                        
+                        <button
+                          onClick={(e) => handleEnrollOrPurchase(e, course)}
+                          className="mt-2 w-full px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                          style={{
+                            backgroundColor: course.isFree ? '#10b981' : '#3b82f6',
+                            color: 'white'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = course.isFree ? '#059669' : '#2563eb';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = course.isFree ? '#10b981' : '#3b82f6';
+                          }}
+                        >
+                          {course.isFree ? (
+                            <>
+                              <BookOpen className="w-4 h-4" />
+                              Enroll Now
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingCart className="w-4 h-4" />
+                              Purchase - ${course.price}
+                            </>
+                          )}
+                        </button>
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -599,31 +658,18 @@ const VideoPlayerPage = () => {
           </div>
         </div>
       ) : (
-        // Fullscreen Mode - Only Video Player
+        // Fullscreen Mode
         <div className="fixed inset-0 bg-black z-50">
           <div className="relative w-full h-full bg-black">
-            {!video.isYouTube ? (
-              <video
-                ref={videoRef}
-                className="w-full h-full object-contain"
-                src={video.videoUrl}
-                onClick={togglePlay}
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={(e) => setDuration(e.target.duration)}
-              />
-            ) : (
-              <iframe
-                ref={iframeRef}
-                className="w-full h-full"
-                src={`${video.videoUrl}?autoplay=1&controls=1&modestbranding=1&rel=0`}
-                title={video.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            )}
+            <video
+              ref={videoRef}
+              className="w-full h-full object-contain"
+              src={video.videoUrl}
+              onClick={togglePlay}
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={(e) => setDuration(e.target.duration)}
+            />
 
-            {/* Back Button in Fullscreen */}
             <button
               onClick={() => toggleFullscreen()}
               className="absolute top-4 left-4 p-2 rounded-lg bg-black/50 hover:bg-black/70 transition-colors backdrop-blur-sm z-10"
@@ -634,8 +680,20 @@ const VideoPlayerPage = () => {
         </div>
       )}
 
-      {/* Share Modal */}
-      <ShareModal />
+      {/* Thank You Toast Notification */}
+      <AnimatePresence>
+        {showThankYou && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 50, x: '-50%' }}
+            className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50"
+          >
+            <Check className="w-5 h-5" />
+            <span className="font-medium">{thankYouMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

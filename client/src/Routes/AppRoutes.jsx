@@ -4,13 +4,14 @@ import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoute";
 import LandingPage from "../pages/landing/LandingPage";
 import RoleSelection from "../pages/RoleSelectionPage/RoleSelection";
-import SignIn from "../pages/auth/SignIn"; 
+import SignIn from "../pages/auth/SignIn";
 import StudentSignUp from "../pages/auth/studentAuth/StudentSignUp";
 import ProfessorSignUp from "../pages/auth/professorSignInAuth/ProfessorSignUp";
 import StudentDashboard from "../pages/studentDashboard/StudentDashboard";
 import ProfessorDashboard from "../pages/professorDashboard/ProfessorDashboard";
 import Unauthorized from "../pages/Unauthorized";
 import VideoPlayerPage from "../pages/studentDashboard/components/courses/VideoPlayerPage";
+import CourseDetailsPage from "../pages/studentDashboard/components/courses/CourseDetailsPage";
 
 const AppRoutes = () => {
   const { isAuthenticated, user, loading } = useAuth();
@@ -53,60 +54,60 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
           <PublicRoute>
             <LandingPage />
           </PublicRoute>
-        } 
+        }
       />
-      <Route 
-        path="/get-started" 
+      <Route
+        path="/get-started"
         element={
           <PublicRoute>
             <RoleSelection />
           </PublicRoute>
-        } 
+        }
       />
-      <Route 
-        path="/role-selection" 
+      <Route
+        path="/role-selection"
         element={
           <PublicRoute>
             <RoleSelection />
           </PublicRoute>
-        } 
+        }
       />
 
-      <Route 
-        path="/signin" 
+      <Route
+        path="/signin"
         element={
           <AuthRedirect>
             <SignIn />
           </AuthRedirect>
-        } 
+        }
       />
-      
+
       <Route path="/student-signin" element={<Navigate to="/signin" replace />} />
       <Route path="/professor-signin" element={<Navigate to="/signin" replace />} />
-      
-      <Route 
-        path="/student-signup" 
+
+      <Route
+        path="/student-signup"
         element={
           <AuthRedirect>
             <StudentSignUp />
           </AuthRedirect>
-        } 
+        }
       />
-      <Route 
-        path="/professor-signup" 
+      <Route
+        path="/professor-signup"
         element={
           <AuthRedirect>
             <ProfessorSignUp />
           </AuthRedirect>
-        } 
+        }
       />
-      
+
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       <Route
@@ -124,6 +125,15 @@ const AppRoutes = () => {
           <RoleRoute role="STUDENT">
             <StudentDashboard />
           </RoleRoute>
+        }
+      />
+
+      <Route
+        path="/course/:courseId"
+        element={
+          <ProtectedRoute>
+            <CourseDetailsPage />
+          </ProtectedRoute>
         }
       />
 

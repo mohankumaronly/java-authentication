@@ -8,7 +8,6 @@ import { useResponsive } from './hooks/useResponsive';
 import { useFilters } from './hooks/useFilters';
 
 // Layout Components
-
 import { Sidebar } from './components/layout/Sidebar';
 import { MobileMenu } from './components/layout/MobileMenu';
 import { Header } from './components/layout/Header';
@@ -30,11 +29,11 @@ import { SearchBar } from './components/common/SearchBar';
 import { ViewToggle } from './components/common/ViewToggle';
 
 // Mock Data
-import { 
-  mockUser, 
-  mockStats, 
-  mockCourses, 
-  mockChallenges, 
+import {
+  mockUser,
+  mockStats,
+  mockCourses,
+  mockChallenges,
   mockPosts,
   navigation,
   mockVideos // Import mockVideos
@@ -48,13 +47,14 @@ const StudentDashboard = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const navigate = useNavigate();
   const { isSidebarOpen, setIsSidebarOpen } = useResponsive();
   const { filters, filteredItems, updateFilter } = useFilters(mockCourses.exploreCourses);
 
   const handleEnroll = (course) => {
-    alert(`Enrolled in ${course.title}!`);
+    // Navigate to course details page for enrollment
+    navigate(`/course/${course.id}`);
   };
 
   const handleLogout = () => {
@@ -70,44 +70,44 @@ const StudentDashboard = () => {
   }));
 
   const renderTabContent = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case 'dashboard':
-        return <DashboardTab 
+        return <DashboardTab
           myCourses={coursesWithFirstVideo}
           challenges={mockChallenges}
           posts={mockPosts}
         />;
-      
+
       case 'courses':
-        return <CoursesTab 
+        return <CoursesTab
           courses={coursesWithFirstVideo}
           viewMode={viewMode}
         />;
-      
+
       case 'explore':
-        return <ExploreTab 
+        return <ExploreTab
           courses={filteredItems}
           viewMode={viewMode}
           filters={filters}
           onFilterChange={updateFilter}
           onEnroll={handleEnroll}
         />;
-      
+
       case 'coding':
         return <CodingTab challenges={mockChallenges} />;
-      
+
       case 'ai':
         return <AITab />;
-      
+
       case 'community':
         return <CommunityTab posts={mockPosts} />;
-      
+
       case 'achievements':
         return <AchievementsTab />;
-      
+
       case 'settings':
         return <SettingsTab user={mockUser} />;
-      
+
       default:
         return null;
     }
@@ -124,7 +124,7 @@ const StudentDashboard = () => {
       </button>
 
       {/* Mobile Menu */}
-      <MobileMenu 
+      <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         navigation={navigation}
@@ -135,7 +135,7 @@ const StudentDashboard = () => {
       />
 
       {/* Desktop Sidebar */}
-      <Sidebar 
+      <Sidebar
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         user={mockUser}
@@ -145,7 +145,7 @@ const StudentDashboard = () => {
         onLogout={handleLogout}
       />
 
-      {/* Desktop Sidebar Toggle Button */}
+
       {!isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
@@ -156,10 +156,9 @@ const StudentDashboard = () => {
       )}
 
       {/* Main Content */}
-      <main className={`transition-all duration-300 ${
-        isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
-      } p-4 md:p-6 lg:p-8 pt-20 lg:pt-8`}>
-        
+      <main className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
+        } p-4 md:p-6 lg:p-8 pt-20 lg:pt-8`}>
+
         <Header user={mockUser} onSearch={setSearchQuery} />
 
         {/* Mobile Search */}
@@ -172,7 +171,7 @@ const StudentDashboard = () => {
 
         {/* Main Content Area */}
         <div className="mt-6">
-          <TabNavigation 
+          <TabNavigation
             tabs={navigation}
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -204,82 +203,131 @@ const StudentDashboard = () => {
 };
 
 // Tab Components
-const DashboardTab = ({ myCourses, challenges, posts }) => (
-  <div className="space-y-6">
-    <section>
-      <SectionHeader title="Continue Watching" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {myCourses.slice(0, 4).map((course, idx) => (
-          <VideoPlayer 
-            key={idx} 
-            video={{
-              ...course,
-              id: course.firstVideoId // Use the first video ID for quick access
-            }} 
-          />
-        ))}
-      </div>
-    </section>
+const DashboardTab = ({ myCourses, challenges, posts }) => {
+  const navigate = useNavigate();
 
-    <section>
-      <SectionHeader title="Recommended Challenges" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {challenges.map((challenge, idx) => (
-          <CodingChallenge key={idx} challenge={challenge} />
-        ))}
-      </div>
-    </section>
+  const handleVideoClick = (courseId, videoId) => {
+    navigate(`/course/${courseId}/video/${videoId}`);
+  };
 
-    <div className="grid lg:grid-cols-2 gap-6">
-      <AIAssistant />
-      
-      <div>
-        <SectionHeader title="Community Feed" />
-        <div className="space-y-4">
-          {posts.map((post, idx) => (
-            <CommunityPost key={idx} post={post} />
+  return (
+    <div className="space-y-6">
+      <section>
+        <SectionHeader title="Continue Watching" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {myCourses.slice(0, 4).map((course, idx) => (
+            <div 
+              key={idx}
+              onClick={() => handleVideoClick(course.courseId, course.firstVideoId)}
+              className="cursor-pointer"
+            >
+              <VideoPlayer
+                video={{
+                  ...course,
+                  id: course.firstVideoId // Use the first video ID for quick access
+                }}
+              />
+            </div>
           ))}
+        </div>
+      </section>
+
+      <section>
+        <SectionHeader title="Recommended Challenges" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {challenges.map((challenge, idx) => (
+            <CodingChallenge key={idx} challenge={challenge} />
+          ))}
+        </div>
+      </section>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <AIAssistant />
+
+        <div>
+          <SectionHeader title="Community Feed" />
+          <div className="space-y-4">
+            {posts.map((post, idx) => (
+              <CommunityPost key={idx} post={post} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-const CoursesTab = ({ courses, viewMode }) => (
-  <div>
-    <h2 className="text-lg font-semibold mb-4">My Courses</h2>
-    <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-4`}>
-      {courses.map((course, idx) => (
-        <VideoPlayer 
-          key={idx} 
-          video={{
-            ...course,
-            id: course.firstVideoId // Use the first video ID
-          }} 
-        />
-      ))}
+const CoursesTab = ({ courses, viewMode }) => {
+  const navigate = useNavigate();
+
+  const handleVideoClick = (courseId, videoId) => {
+    navigate(`/course/${courseId}/video/${videoId}`);
+  };
+
+  return (
+    <div>
+      <h2 className="text-lg font-semibold mb-4">My Courses</h2>
+      <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-4`}>
+        {courses.map((course, idx) => (
+          <div 
+            key={idx}
+            onClick={() => handleVideoClick(course.courseId, course.firstVideoId)}
+            className="cursor-pointer"
+          >
+            <VideoPlayer
+              video={{
+                ...course,
+                id: course.firstVideoId // Use the first video ID
+              }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-const ExploreTab = ({ courses, viewMode, filters, onFilterChange, onEnroll }) => (
-  <div>
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-      <h2 className="text-lg font-semibold">Explore Courses</h2>
-      <CourseFilters filters={filters} onFilterChange={onFilterChange} />
+const ExploreTab = ({ courses, viewMode, filters, onFilterChange, onEnroll }) => {
+  const navigate = useNavigate();
+
+  const handleCourseClick = (courseId) => {
+    // Navigate to course details page
+    navigate(`/course/${courseId}`);
+  };
+
+  const handleEnrollClick = (e, course) => {
+    e.stopPropagation(); // Prevent navigation to course details when clicking enroll
+    onEnroll(course);
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h2 className="text-lg font-semibold">Explore Courses</h2>
+        <CourseFilters filters={filters} onFilterChange={onFilterChange} />
+      </div>
+
+      <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-6`}>
+        {courses.map((course, idx) => (
+          <div
+            key={idx}
+            onClick={() => handleCourseClick(course.id)}
+            className="cursor-pointer transition-transform hover:scale-105"
+          >
+            <CourseCard
+              course={course}
+              onEnroll={(e) => handleEnrollClick(e, course)}
+            />
+          </div>
+        ))}
+      </div>
+
+      {courses.length === 0 && (
+        <EmptyState message="No courses match your filters" />
+      )}
     </div>
-
-    <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-6`}>
-      {courses.map((course, idx) => (
-        <CourseCard key={idx} course={course} onEnroll={onEnroll} />
-      ))}
-    </div>
-
-    {courses.length === 0 && (
-      <EmptyState message="No courses match your filters" />
-    )}
-  </div>
-);
+  );
+};
 
 const CodingTab = ({ challenges }) => (
   <div>
@@ -313,7 +361,7 @@ const AchievementsTab = () => (
   <div>
     <h2 className="text-lg font-semibold mb-4">Achievements</h2>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {[1,2,3,4,5,6,7,8].map((i) => (
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <AchievementCard key={i} index={i} />
       ))}
     </div>
@@ -326,16 +374,16 @@ const SettingsTab = ({ user }) => (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg space-y-4">
       <div>
         <label className="block text-sm font-medium mb-2">Name</label>
-        <input 
-          type="text" 
+        <input
+          type="text"
           defaultValue={user.name}
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
         />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Email</label>
-        <input 
-          type="email" 
+        <input
+          type="email"
           defaultValue={user.email}
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
         />
