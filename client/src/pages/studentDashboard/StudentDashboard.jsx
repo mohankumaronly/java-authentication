@@ -35,7 +35,8 @@ import {
   mockCourses, 
   mockChallenges, 
   mockPosts,
-  navigation 
+  navigation,
+  mockVideos // Import mockVideos
 } from './data/mockData';
 
 // Animations
@@ -59,18 +60,26 @@ const StudentDashboard = () => {
     navigate('/');
   };
 
+  // Prepare courses with first video ID for quick access
+  const coursesWithFirstVideo = mockCourses.myCourses.map(course => ({
+    ...course,
+    courseId: course.id,
+    firstVideoId: mockVideos[course.id]?.playlist[0]?.id || course.id,
+    videoCount: mockVideos[course.id]?.playlist.length || 0
+  }));
+
   const renderTabContent = () => {
     switch(activeTab) {
       case 'dashboard':
         return <DashboardTab 
-          myCourses={mockCourses.myCourses}
+          myCourses={coursesWithFirstVideo}
           challenges={mockChallenges}
           posts={mockPosts}
         />;
       
       case 'courses':
         return <CoursesTab 
-          courses={mockCourses.myCourses}
+          courses={coursesWithFirstVideo}
           viewMode={viewMode}
         />;
       
@@ -200,7 +209,13 @@ const DashboardTab = ({ myCourses, challenges, posts }) => (
       <SectionHeader title="Continue Watching" />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {myCourses.slice(0, 4).map((course, idx) => (
-          <VideoPlayer key={idx} video={course} />
+          <VideoPlayer 
+            key={idx} 
+            video={{
+              ...course,
+              id: course.firstVideoId // Use the first video ID for quick access
+            }} 
+          />
         ))}
       </div>
     </section>
@@ -234,7 +249,13 @@ const CoursesTab = ({ courses, viewMode }) => (
     <h2 className="text-lg font-semibold mb-4">My Courses</h2>
     <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-4`}>
       {courses.map((course, idx) => (
-        <VideoPlayer key={idx} video={course} />
+        <VideoPlayer 
+          key={idx} 
+          video={{
+            ...course,
+            id: course.firstVideoId // Use the first video ID
+          }} 
+        />
       ))}
     </div>
   </div>

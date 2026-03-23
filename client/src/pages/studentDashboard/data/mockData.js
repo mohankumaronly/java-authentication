@@ -578,3 +578,163 @@ export const mockLearningPaths = [
     icon: "Globe"
   }
 ];
+
+// Add this at the bottom of your mockData.js file
+
+// Video details for each course
+export const mockVideos = {
+  // Course 1: React Fundamentals
+  1: {
+    id: 1,
+    title: "React Fundamentals",
+    description: "Learn the core concepts of React including components, props, state, and hooks. This comprehensive course will take you from zero to hero in React development.",
+    instructor: "John Doe",
+    instructorAvatar: "/api/placeholder/40/40",
+    instructorSubscribers: "125K",
+    duration: 2720, // 45:20 in seconds
+    views: "45.2K",
+    likes: 1245,
+    publishedAt: "2024-01-15",
+    thumbnail: "/api/placeholder/320/180",
+    playlist: [
+      { id: 101, title: "Introduction to React", duration: "8:15", isWatched: true },
+      { id: 102, title: "JSX Deep Dive", duration: "12:30", isWatched: true },
+      { id: 103, title: "Components and Props", duration: "15:45", isWatched: false },
+      { id: 104, title: "State and Lifecycle", duration: "18:20", isWatched: false },
+      { id: 105, title: "Handling Events", duration: "10:30", isWatched: false },
+      { id: 106, title: "Conditional Rendering", duration: "9:15", isWatched: false },
+      { id: 107, title: "Lists and Keys", duration: "11:00", isWatched: false },
+      { id: 108, title: "Forms in React", duration: "14:25", isWatched: false },
+      { id: 109, title: "Hooks Introduction", duration: "13:10", isWatched: false },
+      { id: 110, title: "useState Hook", duration: "16:45", isWatched: false },
+      { id: 111, title: "useEffect Hook", duration: "19:30", isWatched: false },
+      { id: 112, title: "Context API", duration: "22:15", isWatched: false },
+      { id: 113, title: "Custom Hooks", duration: "17:20", isWatched: false },
+      { id: 114, title: "Performance Optimization", duration: "20:45", isWatched: false },
+      { id: 115, title: "Testing React Apps", duration: "25:10", isWatched: false },
+      { id: 116, title: "Deployment", duration: "15:30", isWatched: false }
+    ]
+  },
+  
+  // Course 2: Advanced JavaScript
+  2: {
+    id: 2,
+    title: "Advanced JavaScript",
+    description: "Master advanced JavaScript concepts including closures, prototypes, async programming, and more. Take your JavaScript skills to the next level.",
+    instructor: "Jane Smith",
+    instructorAvatar: "/api/placeholder/40/40",
+    instructorSubscribers: "98K",
+    duration: 4815, // 1:20:15 in seconds
+    views: "32.8K",
+    likes: 876,
+    publishedAt: "2024-02-10",
+    thumbnail: "/api/placeholder/320/180",
+    playlist: [
+      { id: 201, title: "JavaScript Engine & Runtime", duration: "12:30", isWatched: false },
+      { id: 202, title: "Execution Context & Call Stack", duration: "15:45", isWatched: false },
+      { id: 203, title: "Hoisting & Scope", duration: "11:20", isWatched: false },
+      { id: 204, title: "Closures Deep Dive", duration: "18:30", isWatched: false },
+      { id: 205, title: "Prototypes & Inheritance", duration: "22:15", isWatched: false },
+      { id: 206, title: "This Keyword Explained", duration: "16:40", isWatched: false }
+    ]
+  },
+  
+  // Course 3: Python for Beginners
+  3: {
+    id: 3,
+    title: "Python for Beginners",
+    description: "Start your Python journey from scratch. Learn Python syntax, data structures, functions, and build real-world projects.",
+    instructor: "Mike Johnson",
+    instructorAvatar: "/api/placeholder/40/40",
+    instructorSubscribers: "210K",
+    duration: 3010, // 50:10 in seconds
+    views: "78.5K",
+    likes: 2341,
+    publishedAt: "2024-01-05",
+    thumbnail: "/api/placeholder/320/180",
+    playlist: [
+      { id: 301, title: "Python Installation", duration: "5:30", isWatched: true },
+      { id: 302, title: "First Python Program", duration: "8:15", isWatched: true },
+      { id: 303, title: "Variables & Data Types", duration: "12:45", isWatched: true },
+      { id: 304, title: "Operators in Python", duration: "10:30", isWatched: true },
+      { id: 305, title: "Control Flow", duration: "15:20", isWatched: false }
+    ]
+  },
+  
+  // Course 4: Data Structures
+  4: {
+    id: 4,
+    title: "Data Structures",
+    description: "Master essential data structures including arrays, linked lists, trees, graphs, and more. Perfect for coding interviews.",
+    instructor: "Sarah Wilson",
+    instructorAvatar: "/api/placeholder/40/40",
+    instructorSubscribers: "156K",
+    duration: 4530, // 1:15:30 in seconds
+    views: "56.2K",
+    likes: 1876,
+    publishedAt: "2024-01-20",
+    thumbnail: "/api/placeholder/320/180",
+    playlist: [
+      { id: 401, title: "Introduction to Data Structures", duration: "8:20", isWatched: true },
+      { id: 402, title: "Arrays", duration: "15:30", isWatched: false },
+      { id: 403, title: "Linked Lists", duration: "18:45", isWatched: false }
+    ]
+  },
+  
+  // Course 5: TypeScript Masterclass
+  5: {
+    id: 5,
+    title: "TypeScript Masterclass",
+    description: "Learn TypeScript from basics to advanced. Add static typing to JavaScript and build scalable applications.",
+    instructor: "Alex Chen",
+    instructorAvatar: "/api/placeholder/40/40",
+    instructorSubscribers: "89K",
+    duration: 3345, // 55:45 in seconds
+    views: "23.4K",
+    likes: 654,
+    publishedAt: "2024-02-25",
+    thumbnail: "/api/placeholder/320/180",
+    playlist: [
+      { id: 501, title: "TypeScript Introduction", duration: "10:15", isWatched: true },
+      { id: 502, title: "Basic Types", duration: "12:30", isWatched: true },
+      { id: 503, title: "Interfaces", duration: "15:45", isWatched: false }
+    ]
+  },
+  
+  // Course 6: Node.js API Development
+  6: {
+    id: 6,
+    title: "Node.js API Development",
+    description: "Build RESTful APIs with Node.js, Express, and MongoDB. Learn authentication, validation, and best practices.",
+    instructor: "Emily Brown",
+    instructorAvatar: "/api/placeholder/40/40",
+    instructorSubscribers: "112K",
+    duration: 5420, // 1:30:20 in seconds
+    views: "34.7K",
+    likes: 987,
+    publishedAt: "2024-02-01",
+    thumbnail: "/api/placeholder/320/180",
+    playlist: [
+      { id: 601, title: "Node.js Setup", duration: "8:30", isWatched: true },
+      { id: 602, title: "Express Framework", duration: "12:45", isWatched: true },
+      { id: 603, title: "REST API Design", duration: "15:20", isWatched: false }
+    ]
+  }
+};
+
+// Helper function to get video details
+export const getVideoDetails = (courseId, videoId) => {
+  const course = mockVideos[courseId];
+  if (!course) return null;
+  
+  const video = course.playlist.find(v => v.id === parseInt(videoId));
+  if (!video) return null;
+  
+  return {
+    ...video,
+    courseTitle: course.title,
+    courseInstructor: course.instructor,
+    courseDescription: course.description,
+    playlist: course.playlist
+  };
+};

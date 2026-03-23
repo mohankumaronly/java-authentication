@@ -10,6 +10,7 @@ import ProfessorSignUp from "../pages/auth/professorSignInAuth/ProfessorSignUp";
 import StudentDashboard from "../pages/studentDashboard/StudentDashboard";
 import ProfessorDashboard from "../pages/professorDashboard/ProfessorDashboard";
 import Unauthorized from "../pages/Unauthorized";
+import VideoPlayerPage from "../pages/studentDashboard/components/courses/VideoPlayerPage";
 
 const AppRoutes = () => {
   const { isAuthenticated, user, loading } = useAuth();
@@ -38,7 +39,6 @@ const AppRoutes = () => {
     return children;
   };
 
-  // Redirect authenticated users away from auth pages
   const AuthRedirect = ({ children }) => {
     if (isAuthenticated) {
       if (user?.role === "STUDENT") {
@@ -53,7 +53,6 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Public Routes - Not accessible after login */}
       <Route 
         path="/" 
         element={
@@ -78,8 +77,7 @@ const AppRoutes = () => {
           </PublicRoute>
         } 
       />
-      
-      {/* Auth Routes */}
+
       <Route 
         path="/signin" 
         element={
@@ -111,7 +109,6 @@ const AppRoutes = () => {
       
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* Protected Routes */}
       <Route
         path="/profile"
         element={
@@ -131,6 +128,15 @@ const AppRoutes = () => {
       />
 
       <Route
+        path="/course/:courseId/video/:videoId"
+        element={
+          <ProtectedRoute>
+            <VideoPlayerPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/professor-dashboard"
         element={
           <RoleRoute role="PROFESSOR">
@@ -139,7 +145,6 @@ const AppRoutes = () => {
         }
       />
 
-      {/* 404 Route */}
       <Route path="*" element={<div>404 - Page Not Found</div>} />
     </Routes>
   );
